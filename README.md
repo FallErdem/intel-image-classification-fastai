@@ -1,142 +1,212 @@
-'''markdown
+Intel Görüntü Sınıflandırma: fastai ile Doğal Ortam Tespiti
 
-Intel Image Classification (6 sınıf) · fastai + ResNet18
+Bu proje, Intel Image Classification veri setini kullanarak doğal ve yapay ortam görsellerini (binalar, orman, buzul, dağ, deniz, sokak) sınıflandırmak için fastai ve ResNet18 mimarisini kullanır. Proje, transfer öğrenimi (transfer learning) tekniğinden faydalanarak yüksek doğruluklu bir model eğitmeyi amaçlamaktadır.
 
-Amaç: Doğal/yapay ortam görsellerini (buildings, forest, glacier, mountain, sea, street) bir CNN ile sınıflandırmak.
-Teknolojiler: fastai v2 · PyTorch · Kaggle GPU
+![alt text](reports/gradcam_example.png)
 
-Bu repo; veri önişleme + augmentation, CNN (ResNet18, transfer learning), metrik grafikleri, Confusion Matrix & Classification Report, Grad-CAM, küçük HPO ve model kaydetme adımlarını içerir.
+(Yukarıdaki görsel, modelin 'orman' sınıfını tahmin ederken hangi piksellere odaklandığını gösteren bir Grad-CAM çıktısıdır. Kendi görsellerinizi eklemeyi unutmayın.)
+
+<br>
+
+📜 İçindekiler
 
 🔗 Bağlantılar
 
-Kaggle Notebook: https://www.kaggle.com/code/fallerdem/globalai/edit
-
-Model Ağırlıkları (GitHub Release): https://github.com/FallErdem/intel-image-classification-fastai/releases/tag/v0.1.0
-
-Veri Seti (Kaggle): puneet6060/intel-image-classification
+✨ Temel Özellikler
 
 🗂️ Proje Yapısı
 
-'''
-notebooks/
-Intel_Image_Classification.ipynb
-export.pkl # (opsiyonel) tek dosya ile inference
-reports/
-confusion_matrix.PNG
-gradcam_example.png
-'''
-
-Not: GitHub’ın 100 MB limiti nedeniyle büyük .pth dosyası repoda değil, Releases altında paylaşıldı (link yukarıda). Sadece tahmin için export.pkl en pratik yoldur.
-
-🧭 Yöntem (Özet)
-
-Veri önişleme: fastai DataBlock (80/20 train/valid), giriş boyutu 224×224
-
-Augmentations: flip, rotate(±8°), zoom(1.1), lighting(0.2)
-
-Model: ResNet18 (ImageNet ön-eğitimli) → Transfer Learning
-
-Eğitim: LR Finder → 12 epoch (frozen) + 5 epoch (unfreeze, küçük LR)
-
-Değerlendirme: Accuracy/Loss grafikleri, Confusion Matrix, Classification Report
-
-Açıklanabilirlik: Grad-CAM (son konv katmanından ısı haritası)
-
-HPO (mini-grid): farklı lr_slice & weight_decay kombinasyonları
-
-Kayıt: export.pkl (fastai), .pth (Release’te)
+🧭 Yöntem ve Akış
 
 📊 Sonuçlar
 
-Validation Accuracy (en iyi): ~0.948
+🚀 Nasıl Çalıştırılır?
 
-Test Accuracy: ~0.87 (3000 görüntü)
+Kaggle (Önerilen Yöntem)
 
-En çok karışan sınıflar: glacier ↔ mountain/sea (benzer doku & ufuk çizgisi)
+Lokal Ortamda Tahmin (Inference)
 
-Görseller:
+🔮 Gelecek Geliştirmeler
 
-Confusion Matrix → reports/confusion_matrix.PNG
+✅ Proje Gereksinimleri
 
-Grad-CAM örneği → reports/gradcam_example.png
+<br>
 
-🚀 Çalıştırma
-Kaggle (önerilen)
+🔗 Bağlantılar
+Kaynak	Bağlantı
+🚀 Kaggle Notebook	GlobalAI Notebook
+📦 Model Ağırlıkları	GitHub Release v0.1.0
+💾 Veri Seti	Intel Image Classification
+<br>
 
-New Notebook → Add Data: puneet6060/intel-image-classification
+✨ Temel Özellikler
 
-Settings → Accelerator: GPU
+Veri İşleme: fastai DataBlock API'si ile verimli veri yükleme, önişleme ve augmentasyon.
 
-Bu repodaki notebook’u yükleyin (veya Kaggle’a import edin).
+Model: ImageNet üzerinde ön-eğitilmiş ResNet18 mimarisi ile transfer öğrenimi.
 
-Hücreleri sırayla çalıştırın; çıktılar /kaggle/working/ altında oluşur.
+Eğitim: Learning Rate Finder ile en uygun öğrenme oranının tespiti ve fine_tune ile modelin eğitilmesi.
 
-Lokal Inference (yalnızca tahmin)
+Değerlendirme: Doğruluk/Kayıp grafikleri, Confusion Matrix ve Classification Report ile detaylı model analizi.
 
-Seçenek A — export.pkl ile (tek dosya, en pratik)
-'''
+Açıklanabilirlik (XAI): Grad-CAM ile modelin tahminlerini hangi bölgelere bakarak yaptığının görselleştirilmesi.
+
+Optimizasyon: Küçük bir grid-search ile hiperparametre optimizasyonu (HPO) denemesi.
+
+Dağıtım: Modelin hem .pth (eğitim için) hem de .pkl (tahmin için) formatlarında kaydedilmesi.
+
+<br>
+
+🗂️ Proje Yapısı
+code
+Bash
+download
+content_copy
+expand_less
+.
+├── notebooks/
+│   ├── Intel_Image_Classification.ipynb  # Ana eğitim ve analiz notebook'u
+│   └── export.pkl                        # Sadece tahmin için pratik model dosyası
+│
+├── reports/
+│   ├── confusion_matrix.png              # Modelin karışım matrisi görseli
+│   └── gradcam_example.png               # Örnek Grad-CAM çıktısı
+│
+└── README.md
+
+Not: GitHub'ın 100 MB dosya limiti nedeniyle, eğitilmiş model ağırlıklarını içeren .pth dosyası bu repoda bulunmamaktadır. Dosyaya yukarıdaki GitHub Release bağlantısından ulaşabilirsiniz.
+
+<br>
+
+🧭 Yöntem ve Akış
+
+Veri Hazırlığı: fastai'nin DataBlock API'si kullanılarak veri seti 80/20 oranında eğitim ve validasyon olarak ayrıldı. Görüntüler 224x224 boyutuna getirildi.
+
+Veri Artırma (Augmentation): Eğitim verisine çeşitlilik katmak için flip, rotate(±8°), zoom(1.1) ve lighting(0.2) gibi augmentasyon teknikleri uygulandı.
+
+Model Seçimi: ResNet18 mimarisi, transfer öğrenimi için temel model olarak seçildi.
+
+Eğitim Stratejisi:
+
+lr_find() ile optimum öğrenme oranı bulundu.
+
+Modelin son katmanları 12 epoch boyunca dondurularak (frozen) eğitildi.
+
+Tüm katmanlar çözülerek (unfrozen) daha düşük öğrenme oranları ile 5 epoch daha ince ayar (fine_tune) yapıldı.
+
+Model Değerlendirme: Eğitim sonrası doğruluk, kayıp, karışım matrisi ve sınıflandırma raporu gibi metriklerle modelin performansı analiz edildi.
+
+Model Kaydı: En iyi performansı gösteren model, hem fastai'nin export.pkl formatında hem de PyTorch'un standart .pth formatında kaydedildi.
+
+<br>
+
+📊 Sonuçlar
+
+En İyi Validasyon Doğruluğu: ~%94.8
+
+Test Doğruluğu (3000 Görüntü): ~%87.0
+
+Zorlandığı Sınıflar: Modelin, benzer doku ve ufuk çizgisine sahip glacier ↔ mountain/sea sınıflarını zaman zaman karıştırdığı gözlemlendi.
+
+Confusion Matrix
+
+![alt text](reports/confusion_matrix.png)
+
+<br>
+
+🚀 Nasıl Çalıştırılır?
+Kaggle (Önerilen Yöntem)
+
+Yeni bir Kaggle Notebook başlatın.
+
+Add Data seçeneğinden puneet6060/intel-image-classification veri setini projenize ekleyin.
+
+Sağ paneldeki Settings → Accelerator menüsünden GPU'yu seçin.
+
+Bu repodaki notebooks/Intel_Image_Classification.ipynb dosyasını Kaggle'a yükleyin.
+
+Hücreleri sırasıyla çalıştırın. Çıktı dosyaları (export.pkl, görseller vb.) /kaggle/working/ dizininde oluşturulacaktır.
+
+Lokal Ortamda Tahmin (Inference)
+Seçenek A: export.pkl ile (En Pratik Yol)
+
+Bu yöntem fastai kütüphanesinin yüklü olmasını gerektirir ve tek bir dosya ile hızlıca tahmin yapmanızı sağlar.
+
+code
+Python
+download
+content_copy
+expand_less
 from fastai.vision.all import *
 
+# Modeli yükle
 learn = load_learner('notebooks/export.pkl')
 
-img = PILImage.create('any_test.jpg')
+# Görüntüyü aç ve tahmin et
+img = PILImage.create('herhangi_bir_test_goruntusu.jpg')
 pred, _, probs = learn.predict(img)
-print(pred, float(probs.max()))
-'''
 
-Seçenek B — Release’ten indirilen .pth ile (eğitim/devam senaryosu)
-'''
+print(f"Tahmin Edilen Sınıf: {pred}")
+print(f"Olasılık: {probs.max():.4f}")
+Seçenek B: .pth Dosyası ile (Eğitime Devam Etmek İçin)
+
+Bu yöntem, Release'ten indirilen model ağırlıklarını kullanarak eğitime devam etmenize veya modeli daha esnek bir şekilde kullanmanıza olanak tanır.
+
+code
+Python
+download
+content_copy
+expand_less
 from fastai.vision.all import *
-from pathlib import Path
 
-dls'i (224px) eğitimdeki augment/normalize ile kurduğunuzu varsayar.
+# ÖNEMLİ: Eğitimde kullanılan DataLoaders (dls) yapısını tekrar oluşturmanız gerekir.
+# Bu yapı, veri augmentasyon ve normalizasyon adımlarını içerir.
+# dls = ... (Eğitimdeki gibi DataBlock ile oluşturun)
 
+# Boş bir learner oluşturun
 learn = vision_learner(
-dls, resnet18, metrics=[accuracy],
-path=Path('.'), model_dir=Path('models')
+    dls, resnet18, metrics=accuracy,
+    path=Path('.'), model_dir=Path('models')
 ).to_fp32()
 
-Release'ten indirdiğiniz dosyayı models/ klasörüne koyun:
-models/resnet18-intel-best.pth
-
+# Release'ten indirdiğiniz dosyayı 'models' klasörüne kopyalayın
+# Dosya yolu: 'models/resnet18-intel-best.pth' olmalıdır.
 learn.load('resnet18-intel-best', with_opt=False)
 
-img = PILImage.create('any_test.jpg')
+# Tahmin yap
+img = PILImage.create('herhangi_bir_test_goruntusu.jpg')
 pred, _, probs = learn.predict(img)
-print(pred, float(probs.max()))
-'''
-Not: learn.load("resnet18-intel-best"), dosyayı models/resnet18-intel-best.pth yolunda arar.
 
-✅ Bootcamp İsterleri Eşlemesi
+print(f"Tahmin Edilen Sınıf: {pred}")
+print(f"Olasılık: {probs.max():.4f}")
+<br>
 
-Kaggle notebook + GitHub repo + README ✔️
+🔮 Gelecek Geliştirmeler
 
-Veri önişleme + Data Augmentation ✔️
+Daha Güçlü Mimariler: ResNet34/50, EfficientNet veya ConvNeXt gibi daha derin modellerle performansı artırmak.
 
-CNN tabanlı model (ResNet18, TL) ✔️
+Gelişmiş Augmentasyon: Mixup, CutMix, RandomErasing ve Test Time Augmentation (TTA) gibi teknikleri denemek.
 
-Accuracy/Loss grafikleri + Confusion Matrix + Classification Report ✔️
+Sınıf Dengeleme: Sınıf ağırlıkları (class-weight), focal loss veya oversampling gibi yöntemlerle azınlık sınıfların performansını iyileştirmek.
 
-Grad-CAM görselleştirme ✔️
+Deney Takibi: W&B veya MLflow entegrasyonu ile hiperparametreleri ve sonuçları daha sistematik bir şekilde takip etmek.
 
-Hiperparametre denemeleri (mini-grid) ✔️
+<br>
 
-Model kaydetme (export.pkl / .pth) ✔️
+✅ Proje Gereksinimleri
 
-(Bonus) TensorBoard (trace_model=False) ✔️
+Kaggle notebook + GitHub repo + README
 
-🔮 Geliştirme Fikirleri
+Veri önişleme + Data Augmentation
 
-Daha güçlü mimariler: ResNet34/50, EfficientNet, ConvNeXt
+CNN tabanlı model (ResNet18, Transfer Learning)
 
-Mixup/CutMix, RandomErasing, TTA
+Accuracy/Loss grafikleri + Confusion Matrix + Classification Report
 
-Sınıf dengeleme: class-weight, focal loss, oversampling
+Grad-CAM ile model yorumlanabilirliği
 
-W&B / MLflow ile deney takibi ve izleme
+Hiperparametre denemeleri (mini-grid)
 
-🙏 Teşekkür
+Modelin farklı formatlarda kaydedilmesi (export.pkl / .pth)
 
-Dataset: Intel Image Classification — Kaggle (puneet6060)
-
-fastai & PyTorch toplulukları
+(Bonus) TensorBoard entegrasyonu
